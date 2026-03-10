@@ -8,445 +8,142 @@
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;300;400;500&family=DM+Sans:wght@300;300;300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="https://res.cloudinary.com/dcajb02df/image/upload/v1753960691/logo_pyncju.png" type="image/png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-
   <style>
-    :root {
-      --bg-deep:     #050d1a;
-      --bg-card:     rgba(8, 20, 40, 0.75);
-      --teal:        #00c9a7;
-      --teal-dim:    rgba(0, 201, 167, 0.15);
-      --gold:        #f5c842;
-      --gold-dim:    rgba(245, 200, 66, 0.12);
-      --text-main:   #e8f0fe;
-      --text-muted:  #7a90b0;
-      --border:      rgba(0, 201, 167, 0.18);
-      --border-gold: rgba(245, 200, 66, 0.25);
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg-deep);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
-
-    .bg-mesh {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background:
-        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,201,167,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(245,200,66,0.06) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0,80,160,0.08) 0%, transparent 60%);
-    }
-
-    .orb {
-      position: fixed; border-radius: 50%; filter: blur(80px);
-      pointer-events: none; z-index: 0;
-      animation: drift 18s ease-in-out infinite alternate;
-    }
-    .orb-1 { width:500px; height:500px; top:-150px; left:-100px; background:rgba(0,201,167,0.08); animation-duration:20s; }
-    .orb-2 { width:400px; height:400px; bottom:-100px; right:-80px; background:rgba(245,200,66,0.07); animation-duration:25s; animation-delay:-8s; }
-    .orb-3 { width:300px; height:300px; top:40%; left:60%; background:rgba(0,120,255,0.06); animation-duration:22s; animation-delay:-4s; }
-
-    @keyframes drift {
-      from { transform: translate(0,0) scale(1); }
-      to   { transform: translate(40px,30px) scale(1.1); }
-    }
-
-    header {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(5,13,26,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo-text {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px;
-      background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-
-    .logo-badge {
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 1px;
-      background: var(--gold); color: #0a0a0a;
-      padding: 2px 6px; border-radius: 4px; margin-left: 8px;
-      vertical-align: middle; font-family: 'Syne', sans-serif;
-    }
-
-    .beta-banner {
-      background: linear-gradient(90deg, #0a1628 0%, rgba(0,201,167,0.15) 50%, #0a1628 100%);
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8rem; color: var(--teal); padding: 8px 0;
-    }
-
-    .main-card {
-      position: relative; z-index: 1;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      backdrop-filter: blur(24px);
-      box-shadow: 0 0 0 1px rgba(0,201,167,0.05), 0 40px 80px rgba(0,0,0,0.5);
-      overflow: hidden;
-      animation: fadeUp 0.6s ease both;
-    }
-
-    .main-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--teal), var(--gold), transparent);
-      opacity: 0.6;
-    }
-
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(30px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
-    .section-title {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #fff 30%, var(--teal) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-
-    .drop-zone {
-      border: 2px dashed rgba(0,201,167,0.3);
-      border-radius: 16px;
-      background: rgba(0,201,167,0.03);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative; overflow: hidden;
-    }
-
-    .drop-zone:hover {
-      border-color: var(--teal);
-      background: rgba(0,201,167,0.06);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0,201,167,0.1);
-    }
-
-    .drop-zone.drag-over {
-      border-color: var(--gold);
-      background: var(--gold-dim);
-      box-shadow: 0 0 40px rgba(245,200,66,0.15);
-    }
-
-    .upload-icon-ring {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--teal-dim), var(--gold-dim));
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-      animation: pulse-ring 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse-ring {
-      0%,100% { box-shadow: 0 0 0 0 rgba(0,201,167,0.3); }
-      50%      { box-shadow: 0 0 0 12px rgba(0,201,167,0); }
-    }
-
-    .photo-card {
-      background: rgba(0,201,167,0.04);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      transition: all 0.25s ease;
-      animation: slideIn 0.3s ease;
-    }
-
-    .photo-card:hover {
-      border-color: rgba(0,201,167,0.4);
-      background: rgba(0,201,167,0.07);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-
-    @keyframes slideIn {
-      from { opacity:0; transform:translateY(12px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-
-    .btn-primary {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700; font-size: 0.95rem; letter-spacing: 0.3px;
-      background: linear-gradient(135deg, var(--teal) 0%, #009e82 100%);
-      color: #031a14;
-      border: none; border-radius: 12px;
-      padding: 14px 36px; cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 20px rgba(0,201,167,0.35);
-      position: relative; overflow: hidden;
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-
-    .btn-primary::before {
-      content: '';
-      position: absolute; top:0; left:-100%; width:100%; height:100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transition: left 0.4s ease;
-    }
-
-    .btn-primary:hover::before { left: 100%; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,201,167,0.45); }
-    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-
-    .btn-download {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700; font-size: 0.95rem;
-      background: linear-gradient(135deg, var(--gold) 0%, #d4a800 100%);
-      color: #1a1000;
-      border: none; border-radius: 12px;
-      padding: 14px 36px; cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 20px rgba(245,200,66,0.3);
-      display: inline-flex; align-items: center; gap: 8px;
-    }
-
-    .btn-download:hover { transform:translateY(-2px); box-shadow: 0 8px 28px rgba(245,200,66,0.4); }
-
-    .btn-small {
-      font-size: 0.75rem; font-weight: 600;
-      border-radius: 8px; padding: 6px 14px;
-      cursor: pointer; transition: all 0.2s ease;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .btn-crop { background:rgba(0,201,167,0.12); border:1px solid rgba(0,201,167,0.3); color:var(--teal); }
-    .btn-crop:hover { background:rgba(0,201,167,0.22); border-color:var(--teal); }
-    .btn-remove { background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.25); color:#ff7070; }
-    .btn-remove:hover { background:rgba(255,80,80,0.2); border-color:#ff7070; }
-
-    .btn-add-more {
-      font-size: 0.85rem; font-weight: 500;
-      color: var(--teal); border: 1px dashed rgba(0,201,167,0.35);
-      border-radius: 10px; padding: 10px 20px;
-      background: transparent; cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn-add-more:hover { background:var(--teal-dim); border-color:var(--teal); }
-
-    .color-section {
-      background: rgba(0,0,0,0.25);
-      border: 1px solid var(--border-gold);
-      border-radius: 16px; padding: 20px 24px;
-      position: relative; overflow: hidden;
-    }
-
-    .color-section::before {
-      content: '';
-      position: absolute; top:0; left:0; right:0; height:1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0.4;
-    }
-
-    .color-section-label {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--gold); margin-bottom: 4px;
-    }
-
-    .color-dot {
-      width: 38px; height: 38px; border-radius: 50%;
-      border: 2.5px solid transparent;
-      cursor: pointer; position: relative;
-      transition: all 0.2s ease;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
-    }
-
-    .color-dot:hover { transform: scale(1.2); }
-
-    .color-dot.active {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(245,200,66,0.25), inset 0 0 0 1px rgba(255,255,255,0.2);
-      transform: scale(1.15);
-    }
-
-    .color-dot.active::after {
-      content: '✓';
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: rgba(0,0,0,0.55);
-    }
-
-    #customColorInput {
-      -webkit-appearance: none; appearance: none;
-      width: 38px; height: 38px; border-radius: 50%;
-      border: 2.5px solid rgba(255,255,255,0.15);
-      cursor: pointer; padding: 0; background: none; overflow: hidden;
-      transition: all 0.2s ease;
-    }
-    #customColorInput::-webkit-color-swatch-wrapper { padding: 0; }
-    #customColorInput::-webkit-color-swatch { border: none; border-radius: 50%; }
-    #customColorInput:hover { transform:scale(1.2); border-color:var(--gold); }
-
-    .color-preview-pill {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 50px; padding: 6px 14px 6px 8px;
-    }
-
-    .color-swatch {
-      width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0;
-    }
-
-    .adv-toggle {
-      font-size: 0.82rem; color: var(--teal);
-      background: none; border: none; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; font-weight: 500;
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 6px 12px; border-radius: 8px; transition: background 0.2s;
-    }
-    .adv-toggle:hover { background: var(--teal-dim); }
-
-    .adv-panel { background:rgba(0,0,0,0.2); border:1px solid var(--border); border-radius:14px; padding:20px; }
-
-    .adv-input {
-      width: 100%; background: rgba(0,201,167,0.05);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px 12px; color: var(--text-main);
-      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
-      transition: border 0.2s, box-shadow 0.2s; outline: none;
-    }
-    .adv-input:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,201,167,0.12); }
-
-    .adv-label {
-      font-size: 0.78rem; font-weight: 600; color: var(--text-muted);
-      margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.7px;
-      font-family: 'Syne', sans-serif;
-    }
-
-    .loading-bar { display:flex; align-items:center; justify-content:center; gap:12px; color:var(--teal); font-weight:500; }
-    .spinner { width:20px; height:20px; border-radius:50%; border:2px solid rgba(0,201,167,0.2); border-top-color:var(--teal); animation:spin 0.8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.88);
-      backdrop-filter: blur(6px);
-      z-index: 200; display: flex; align-items: center; justify-content: center;
-    }
-
-    .modal-box {
-      background: rgba(8,20,40,0.95);
-      border: 1px solid var(--border); border-radius: 20px; padding: 24px;
-      max-width: 540px; width: 95%; max-height: 90vh; overflow: auto;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    }
-
-    .fab {
-      position: fixed; bottom: 24px; right: 24px; z-index: 100;
-      width: 52px; height: 52px; border-radius: 50%;
-      background: linear-gradient(135deg, #ff4b4b, #c0002a);
-      border: none; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(255,75,75,0.4);
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.25s ease;
-    }
-    .fab:hover { transform:scale(1.1) rotate(10deg); box-shadow:0 8px 28px rgba(255,75,75,0.5); }
-
-    .notif {
-      position: fixed; bottom: 50%; right: 20px;
-      padding: 10px 18px; border-radius: 10px;
-      font-size: 0.85rem; font-weight: 500;
-      transform: translateX(140%); transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
-      z-index: 300; max-width: 280px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    .notif.show { transform: translateX(0); }
-    .notif.error { background:linear-gradient(135deg,#7f1d1d,#991b1b); border:1px solid #ff4b4b44; }
-    .notif.success { background:linear-gradient(135deg,#064e3b,#065f46); border:1px solid #00c9a744; }
-
-    .copies-input {
-      background: rgba(0,201,167,0.08); border:1px solid var(--border);
-      border-radius: 8px; padding: 6px 8px;
-      color: var(--text-main); text-align: center;
-      width: 60px; font-family:'Syne',sans-serif;
-      font-weight: 700; font-size: 1rem; outline: none; transition: border 0.2s;
-    }
-    .copies-input:focus { border-color: var(--teal); }
-
-    .feedback-input {
-      width: 100%; background: rgba(0,201,167,0.05);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: 12px 14px; color: var(--text-main);
-      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
-      outline: none; transition: border 0.2s, box-shadow 0.2s;
-    }
-    .feedback-input:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,201,167,0.1); }
-    .feedback-input::placeholder { color: var(--text-muted); }
-
-    .divider { width:1px; height:36px; background:rgba(255,255,255,0.1); }
-
-    #pdfPreview { border-radius:12px; border:1px solid var(--border); }
-
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(0,201,167,0.3); border-radius: 3px; }
+    :root{--bg-deep:#050d1a;--bg-card:rgba(8,20,40,0.75);--teal:#00c9a7;--teal-dim:rgba(0,201,167,0.15);--gold:#f5c842;--gold-dim:rgba(245,200,66,0.12);--text-main:#e8f0fe;--text-muted:#7a90b0;--border:rgba(0,201,167,0.18);--border-gold:rgba(245,200,66,0.25);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg-deep);color:var(--text-main);min-height:100vh;overflow-x:hidden;}
+    h1,h2,h3{font-family:'Syne',sans-serif;}
+    .bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(0,201,167,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 80%,rgba(245,200,66,0.06) 0%,transparent 55%),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(0,80,160,0.08) 0%,transparent 60%);}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite alternate;}
+    .orb-1{width:500px;height:500px;top:-150px;left:-100px;background:rgba(0,201,167,0.08);animation-duration:20s;}
+    .orb-2{width:400px;height:400px;bottom:-100px;right:-80px;background:rgba(245,200,66,0.07);animation-duration:25s;animation-delay:-8s;}
+    .orb-3{width:300px;height:300px;top:40%;left:60%;background:rgba(0,120,255,0.06);animation-duration:22s;animation-delay:-4s;}
+    @keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(40px,30px) scale(1.1);}}
+    header{position:sticky;top:0;z-index:50;background:rgba(5,13,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+    .logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--teal) 0%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .logo-badge{font-size:0.6rem;font-weight:700;letter-spacing:1px;background:var(--gold);color:#0a0a0a;padding:2px 6px;border-radius:4px;margin-left:8px;vertical-align:middle;font-family:'Syne',sans-serif;}
+    .beta-banner{background:linear-gradient(90deg,#0a1628 0%,rgba(0,201,167,0.15) 50%,#0a1628 100%);border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--teal);padding:8px 0;}
+    .main-card{position:relative;z-index:1;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;backdrop-filter:blur(24px);box-shadow:0 0 0 1px rgba(0,201,167,0.05),0 40px 80px rgba(0,0,0,0.5);overflow:hidden;animation:fadeUp 0.6s ease both;}
+    .main-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),var(--gold),transparent);opacity:0.6;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+    .section-title{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff 30%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .drop-zone{border:2px dashed rgba(0,201,167,0.3);border-radius:16px;background:rgba(0,201,167,0.03);cursor:pointer;transition:all 0.3s ease;}
+    .drop-zone:hover{border-color:var(--teal);background:rgba(0,201,167,0.06);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,201,167,0.1);}
+    .drop-zone.drag-over{border-color:var(--gold);background:var(--gold-dim);box-shadow:0 0 40px rgba(245,200,66,0.15);}
+    .upload-icon-ring{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--teal-dim),var(--gold-dim));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:pulse-ring 3s ease-in-out infinite;}
+    @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(0,201,167,0.3);}50%{box-shadow:0 0 0 12px rgba(0,201,167,0);}}
+    .photo-card{background:rgba(0,201,167,0.04);border:1px solid var(--border);border-radius:14px;transition:all 0.25s ease;animation:slideIn 0.3s ease;}
+    .photo-card:hover{border-color:rgba(0,201,167,0.4);background:rgba(0,201,167,0.07);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+    @keyframes slideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    .counter-wrap{display:flex;align-items:center;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .counter-btn{width:36px;height:36px;border:none;background:transparent;color:var(--teal);font-size:1.3rem;font-weight:700;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;line-height:1;}
+    .counter-btn:hover{background:var(--teal-dim);}
+    .counter-btn:active{background:rgba(0,201,167,0.25);}
+    .counter-val{min-width:38px;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:var(--text-main);padding:0 4px;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+    .btn-primary{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:0.3px;background:linear-gradient(135deg,var(--teal) 0%,#009e82 100%);color:#031a14;border:none;border-radius:12px;padding:14px 36px;cursor:pointer;transition:all 0.25s ease;box-shadow:0 4px 20px rgba(0,201,167,0.35);position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;}
+    .btn-primary::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left 0.4s ease;}
+    .btn-primary:hover::before{left:100%;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,201,167,0.45);}
+    .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+    .btn-download{font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;background:linear-gradient(135deg,var(--gold) 0%,#d4a800 100%);color:#1a1000;border:none;border-radius:12px;padding:14px 36px;cursor:pointer;transition:all 0.25s ease;box-shadow:0 4px 20px rgba(245,200,66,0.3);display:inline-flex;align-items:center;gap:8px;}
+    .btn-download:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,200,66,0.4);}
+    .btn-small{font-size:0.75rem;font-weight:600;border-radius:8px;padding:6px 14px;cursor:pointer;transition:all 0.2s ease;font-family:'DM Sans',sans-serif;}
+    .btn-crop{background:rgba(0,201,167,0.12);border:1px solid rgba(0,201,167,0.3);color:var(--teal);}
+    .btn-crop:hover{background:rgba(0,201,167,0.22);border-color:var(--teal);}
+    .btn-remove{background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.25);color:#ff7070;}
+    .btn-remove:hover{background:rgba(255,80,80,0.2);border-color:#ff7070;}
+    .btn-add-more{font-size:0.85rem;font-weight:500;color:var(--teal);border:1px dashed rgba(0,201,167,0.35);border-radius:10px;padding:10px 20px;background:transparent;cursor:pointer;transition:all 0.2s ease;}
+    .btn-add-more:hover{background:var(--teal-dim);border-color:var(--teal);}
+    .crop-toggle-wrap{display:flex;align-items:center;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;overflow:hidden;width:fit-content;}
+    .crop-toggle-btn{padding:8px 16px;font-size:0.76rem;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.2s ease;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+    .crop-toggle-btn.active{background:var(--teal-dim);color:var(--teal);box-shadow:inset 0 0 0 1px rgba(0,201,167,0.3);}
+    .crop-toggle-btn:hover:not(.active){background:rgba(255,255,255,0.05);color:var(--text-main);}
+    .color-section{background:rgba(0,0,0,0.25);border:1px solid var(--border-gold);border-radius:16px;padding:20px 24px;position:relative;overflow:hidden;}
+    .color-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4;}
+    .color-section-label{font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
+    .color-dot{width:38px;height:38px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;position:relative;transition:all 0.2s ease;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.1);}
+    .color-dot:hover{transform:scale(1.2);}
+    .color-dot.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,0.25),inset 0 0 0 1px rgba(255,255,255,0.2);transform:scale(1.15);}
+    .color-dot.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(0,0,0,0.55);}
+    #customColorInput{-webkit-appearance:none;appearance:none;width:38px;height:38px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;background:none;overflow:hidden;transition:all 0.2s ease;}
+    #customColorInput::-webkit-color-swatch-wrapper{padding:0;}
+    #customColorInput::-webkit-color-swatch{border:none;border-radius:50%;}
+    #customColorInput:hover{transform:scale(1.2);border-color:var(--gold);}
+    .color-preview-pill{display:inline-flex;align-items:center;gap:10px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:6px 14px 6px 8px;}
+    .color-swatch{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;}
+    .adv-toggle{font-size:0.82rem;color:var(--teal);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;transition:background 0.2s;}
+    .adv-toggle:hover{background:var(--teal-dim);}
+    .adv-panel{background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:14px;padding:20px;}
+    .adv-input{width:100%;background:rgba(0,201,167,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text-main);font-family:'DM Sans',sans-serif;font-size:0.9rem;transition:border 0.2s,box-shadow 0.2s;outline:none;}
+    .adv-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,167,0.12);}
+    .adv-label{font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.7px;font-family:'Syne',sans-serif;}
+    .loading-bar{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--teal);font-weight:500;}
+    .spinner{width:20px;height:20px;border-radius:50%;border:2px solid rgba(0,201,167,0.2);border-top-color:var(--teal);animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;}
+    .modal-box{background:rgba(8,20,40,0.95);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:540px;width:95%;max-height:90vh;overflow:auto;box-shadow:0 40px 80px rgba(0,0,0,0.6);}
+    .fab{position:fixed;bottom:24px;right:24px;z-index:100;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#ff4b4b,#c0002a);border:none;cursor:pointer;box-shadow:0 4px 20px rgba(255,75,75,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;}
+    .fab:hover{transform:scale(1.1) rotate(10deg);box-shadow:0 8px 28px rgba(255,75,75,0.5);}
+    .notif{position:fixed;bottom:50%;right:20px;padding:10px 18px;border-radius:10px;font-size:0.85rem;font-weight:500;transform:translateX(140%);transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);z-index:300;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+    .notif.show{transform:translateX(0);}
+    .notif.error{background:linear-gradient(135deg,#7f1d1d,#991b1b);border:1px solid #ff4b4b44;}
+    .notif.success{background:linear-gradient(135deg,#064e3b,#065f46);border:1px solid #00c9a744;}
+    .feedback-input{width:100%;background:rgba(0,201,167,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-main);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:border 0.2s,box-shadow 0.2s;}
+    .feedback-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,201,167,0.1);}
+    .feedback-input::placeholder{color:var(--text-muted);}
+    .divider{width:1px;height:36px;background:rgba(255,255,255,0.1);}
+    #pdfPreview{border-radius:12px;border:1px solid var(--border);}
+    ::-webkit-scrollbar{width:6px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(0,201,167,0.3);border-radius:3px;}
+    .util-btn{background:rgba(255,255,255,0.07);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.82rem;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+    .util-btn:hover{background:rgba(255,255,255,0.12);color:var(--text-main);}
   </style>
 </head>
 <body oncontextmenu="return false">
-
   <div class="bg-mesh"></div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+  <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
-  <!-- Header -->
   <header>
     <div style="max-width:1100px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;align-items:center;">
         <span class="logo-text">Passport Photo Pro</span>
         <span class="logo-badge">BETA</span>
       </div>
-      <div style="font-size:0.78rem;color:var(--text-muted);font-weight:500;">
-        Powered by <span style="color:var(--teal);">AI</span>
-      </div>
+      <div style="font-size:0.78rem;color:var(--text-muted);font-weight:500;">Powered by <span style="color:var(--teal);">AI</span></div>
     </div>
   </header>
 
-  <!-- Beta Banner -->
   <div class="beta-banner" style="text-align:center;">
     <marquee behavior="scroll" direction="left" scrollamount="4">
-      ⚡ Beta Release &nbsp;•&nbsp; Background removal by remove.bg &nbsp;•&nbsp; AI enhancement by Cloudinary &nbsp;•&nbsp; Koi issue? Feedback button use karein &nbsp;•&nbsp; ⚡
+      ⚡ Beta Release &nbsp;•&nbsp; Background removal by remove.bg &nbsp;•&nbsp; Free AI enhancement &nbsp;•&nbsp; Koi issue? Feedback button use karein &nbsp;•&nbsp; ⚡
     </marquee>
   </div>
 
-  <!-- Main -->
   <main style="max-width:780px;margin:0 auto;padding:40px 20px 60px;position:relative;z-index:1;">
     <div class="main-card" style="padding:36px;">
 
-      <!-- Title -->
       <div style="text-align:center;margin-bottom:32px;">
         <p style="font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:8px;font-family:'Syne',sans-serif;">Professional Quality</p>
         <h2 class="section-title">Upload Your Photos</h2>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;line-height:1.6;">Photos upload karein • Copies set karein • Background chunein • PDF generate karein</p>
       </div>
 
-      <!-- Drop Zone -->
       <div id="dropZone" class="drop-zone" style="padding:40px 24px;text-align:center;">
         <input type="file" id="imageInput" style="display:none;" accept="image/*" multiple/>
         <div class="upload-icon-ring">
-          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--teal);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--teal);"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         </div>
         <p style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:6px;">Drag & Drop or Click to Upload</p>
         <p style="color:var(--text-muted);font-size:0.82rem;">JPG, PNG, WEBP supported &nbsp;•&nbsp; Multiple files at once</p>
       </div>
 
-      <!-- Photo Cards -->
       <div id="photoList" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
 
-      <!-- Add More -->
       <div id="addMoreWrapper" style="display:none;text-align:center;margin-top:12px;">
         <button id="addMoreBtn" class="btn-add-more">+ Add More Photos</button>
       </div>
@@ -455,7 +152,6 @@
       <div class="color-section" style="margin-top:28px;">
         <p class="color-section-label">🎨 Background Color</p>
         <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px;">Photo ka background color chuniye — preset ya custom</p>
-
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px;">
           <button class="color-dot active" data-color="#ffffff" style="background:#ffffff;" title="White"></button>
           <button class="color-dot" data-color="#dff0ff" style="background:#dff0ff;" title="Light Blue"></button>
@@ -474,7 +170,6 @@
             <span style="font-size:0.65rem;color:var(--text-muted);font-weight:600;letter-spacing:0.5px;">CUSTOM</span>
           </div>
         </div>
-
         <div class="color-preview-pill">
           <div class="color-swatch" id="selectedColorBox" style="background:#ffffff;"></div>
           <span style="font-size:0.82rem;color:var(--text-muted);">Selected:</span>
@@ -483,14 +178,12 @@
         </div>
       </div>
 
-      <!-- Advanced Options -->
       <div style="margin-top:24px;text-align:center;">
         <button id="toggleAdvanced" class="adv-toggle">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
           Advanced Options
         </button>
       </div>
-
       <div id="advancedOptions" style="display:none;margin-top:12px;">
         <div class="adv-panel">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
@@ -502,7 +195,6 @@
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px;">
         <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:100%;">
           <button id="generateBtn" class="btn-primary">
@@ -515,40 +207,49 @@
           </button>
         </div>
         <div id="loading" style="display:none;">
-          <div class="loading-bar">
-            <div class="spinner"></div>
-            <span>Processing images, please wait…</span>
-          </div>
+          <div class="loading-bar"><div class="spinner"></div><span>Processing images, please wait…</span></div>
         </div>
       </div>
 
-      <!-- PDF Preview -->
       <embed id="pdfPreview" type="application/pdf" style="width:100%;height:500px;margin-top:24px;display:none;"/>
     </div>
   </main>
 
   <!-- Cropper Modal -->
   <div id="cropperModal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;">Crop Photo</h3>
+    <div class="modal-box" style="max-width:580px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;">✂️ Crop Photo</h3>
         <button id="cancelCropBtn" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">&times;</button>
       </div>
-      <div style="max-height:380px;overflow:hidden;border-radius:12px;border:1px solid var(--border);">
+
+      <!-- Crop Mode Toggle -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+        <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;font-family:'Syne',sans-serif;">MODE:</span>
+        <div class="crop-toggle-wrap">
+          <button class="crop-toggle-btn active" id="toggleFree">✂️ Free Crop</button>
+          <button class="crop-toggle-btn" id="togglePassport">📷 Passport Ratio</button>
+        </div>
+        <span id="cropModeHint" style="font-size:0.72rem;color:var(--text-muted);background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:20px;border:1px solid var(--border);">Koi bhi shape/size</span>
+      </div>
+
+      <div style="max-height:400px;overflow:hidden;border-radius:12px;border:1px solid var(--border);">
         <img id="cropModalImage" src="" style="max-width:100%;display:block;"/>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;">
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap;">
+        <button class="util-btn" id="rotateCropBtn">↺ Rotate</button>
+        <button class="util-btn" id="resetCropBtn">↩ Reset</button>
+        <button class="util-btn" id="flipHCropBtn">↔ Flip H</button>
         <button id="confirmCropBtn" class="btn-primary" style="padding:10px 24px;font-size:0.88rem;">✓ Crop & Save</button>
       </div>
     </div>
   </div>
 
   <!-- Feedback FAB -->
-  <!-- <button id="feedbackBtn" class="fab" title="Send Feedback">
-    <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-    </svg>
-  </button> -->
+  <button id="feedbackBtn" class="fab" title="Send Feedback">
+    <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+  </button>
 
   <!-- Feedback Modal -->
   <div id="feedbackModal" class="modal-overlay" style="display:none;z-index:150;">
@@ -568,232 +269,148 @@
     </div>
   </div>
 
-  <!-- Notification -->
-  <div id="notification" class="notif">
-    <p id="notification-message"></p>
-  </div>
+  <div id="notification" class="notif"><p id="notification-message"></p></div>
 
   <script>
     emailjs.init("XJqjmVHK4ISEX0Zam");
 
-    // Color logic
-    const colorNames = {
-      '#ffffff':'White','#dff0ff':'Light Blue','#38b2f4':'Sky Blue',
-      '#1a56c4':'Royal Blue','#e5e5e5':'Silver Grey','#6b7280':'Dark Grey',
-      '#fefce8':'Cream','#f5c842':'Gold','#e53e3e':'Red',
-      '#00c9a7':'Teal','#111111':'Black',
-    };
-
-    let selectedBgColor = '#ffffff';
-    const selBox  = document.getElementById('selectedColorBox');
-    const selText = document.getElementById('selectedColorText');
-    const selName = document.getElementById('selectedColorName');
-    const customInput = document.getElementById('customColorInput');
-
-    function setColor(hex) {
-      selectedBgColor = hex;
-      selBox.style.background = hex;
-      selText.textContent = hex;
-      selName.textContent = colorNames[hex.toLowerCase()] || 'Custom';
-      customInput.value = hex;
-    }
-
-    document.querySelectorAll('.color-dot').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.color-dot').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        setColor(btn.dataset.color);
-      });
-    });
-
-    customInput.addEventListener('input', e => {
-      document.querySelectorAll('.color-dot').forEach(b => b.classList.remove('active'));
-      setColor(e.target.value);
-    });
+    // Color
+    const colorNames={'#ffffff':'White','#dff0ff':'Light Blue','#38b2f4':'Sky Blue','#1a56c4':'Royal Blue','#e5e5e5':'Silver Grey','#6b7280':'Dark Grey','#fefce8':'Cream','#f5c842':'Gold','#e53e3e':'Red','#00c9a7':'Teal','#111111':'Black'};
+    let selectedBgColor='#ffffff';
+    const selBox=document.getElementById('selectedColorBox'),selText=document.getElementById('selectedColorText'),selName=document.getElementById('selectedColorName'),customInput=document.getElementById('customColorInput');
+    function setColor(hex){selectedBgColor=hex;selBox.style.background=hex;selText.textContent=hex;selName.textContent=colorNames[hex.toLowerCase()]||'Custom';customInput.value=hex;}
+    document.querySelectorAll('.color-dot').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.color-dot').forEach(b=>b.classList.remove('active'));btn.classList.add('active');setColor(btn.dataset.color);});});
+    customInput.addEventListener('input',e=>{document.querySelectorAll('.color-dot').forEach(b=>b.classList.remove('active'));setColor(e.target.value);});
 
     // State
-    let photos = [], nextId = 0, activeCropper = null, pendingCropId = null;
+    let photos=[],nextId=0,activeCropper=null,pendingCropId=null,cropMode='free';
 
-    const dropZone       = document.getElementById('dropZone');
-    const imageInput     = document.getElementById('imageInput');
-    const photoList      = document.getElementById('photoList');
-    const addMoreWrapper = document.getElementById('addMoreWrapper');
-    const addMoreBtn     = document.getElementById('addMoreBtn');
-    const generateBtn    = document.getElementById('generateBtn');
-    const downloadBtn    = document.getElementById('downloadBtn');
-    const pdfPreview     = document.getElementById('pdfPreview');
-    const loading        = document.getElementById('loading');
-    const toggleAdv      = document.getElementById('toggleAdvanced');
-    const advPanel       = document.getElementById('advancedOptions');
-    const cropModal      = document.getElementById('cropperModal');
-    const cropImg        = document.getElementById('cropModalImage');
-    const confirmCrop    = document.getElementById('confirmCropBtn');
-    const cancelCrop     = document.getElementById('cancelCropBtn');
-    const notif          = document.getElementById('notification');
-    const notifMsg       = document.getElementById('notification-message');
-    const feedbackBtn    = document.getElementById('feedbackBtn');
-    const feedbackModal  = document.getElementById('feedbackModal');
-    const closeModal     = document.getElementById('closeModal');
-    const feedbackForm   = document.getElementById('feedbackForm');
+    const dropZone=document.getElementById('dropZone'),imageInput=document.getElementById('imageInput'),photoList=document.getElementById('photoList'),addMoreWrapper=document.getElementById('addMoreWrapper'),addMoreBtn=document.getElementById('addMoreBtn'),generateBtn=document.getElementById('generateBtn'),downloadBtn=document.getElementById('downloadBtn'),pdfPreview=document.getElementById('pdfPreview'),loading=document.getElementById('loading'),toggleAdv=document.getElementById('toggleAdvanced'),advPanel=document.getElementById('advancedOptions'),cropModal=document.getElementById('cropperModal'),cropImg=document.getElementById('cropModalImage'),confirmCrop=document.getElementById('confirmCropBtn'),cancelCrop=document.getElementById('cancelCropBtn'),rotateCrop=document.getElementById('rotateCropBtn'),resetCrop=document.getElementById('resetCropBtn'),flipH=document.getElementById('flipHCropBtn'),toggleFree=document.getElementById('toggleFree'),togglePassport=document.getElementById('togglePassport'),cropModeHint=document.getElementById('cropModeHint'),notif=document.getElementById('notification'),notifMsg=document.getElementById('notification-message'),feedbackBtn=document.getElementById('feedbackBtn'),feedbackModal=document.getElementById('feedbackModal'),closeModal=document.getElementById('closeModal'),feedbackForm=document.getElementById('feedbackForm');
 
-    function showNotif(msg, isError = true) {
-      notifMsg.textContent = msg;
-      notif.classList.remove('error','success','show');
-      void notif.offsetWidth;
-      notif.classList.add(isError ? 'error' : 'success', 'show');
-      setTimeout(() => notif.classList.remove('show'), 3200);
-    }
+    function showNotif(msg,isError=true){notifMsg.textContent=msg;notif.classList.remove('error','success','show');void notif.offsetWidth;notif.classList.add(isError?'error':'success','show');setTimeout(()=>notif.classList.remove('show'),3200);}
 
-    function renderPhotoList() {
-      photoList.innerHTML = '';
-      photos.forEach(photo => {
-        const card = document.createElement('div');
-        card.className = 'photo-card';
-        card.style.cssText = 'display:flex;align-items:center;gap:14px;padding:14px 16px;';
-        card.innerHTML = `
+    // Crop Mode Toggle
+    toggleFree.addEventListener('click',()=>{cropMode='free';toggleFree.classList.add('active');togglePassport.classList.remove('active');cropModeHint.textContent='Koi bhi shape/size';if(activeCropper)activeCropper.setAspectRatio(NaN);});
+    togglePassport.addEventListener('click',()=>{cropMode='passport';togglePassport.classList.add('active');toggleFree.classList.remove('active');cropModeHint.textContent='3.5 × 4.5 cm passport ratio';if(activeCropper)activeCropper.setAspectRatio(35/45);});
+
+    // Render with +/- buttons
+    function renderPhotoList(){
+      photoList.innerHTML='';
+      photos.forEach(photo=>{
+        const card=document.createElement('div');
+        card.className='photo-card';
+        card.style.cssText='display:flex;align-items:center;gap:14px;padding:14px 16px;';
+        card.innerHTML=`
           <img src="${photo.previewUrl}" style="width:52px;height:66px;object-fit:cover;border-radius:10px;border:1px solid rgba(0,201,167,0.2);flex-shrink:0;"/>
           <div style="flex:1;min-width:0;">
             <p style="font-family:'Syne',sans-serif;font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);">${photo.originalFile.name}</p>
-            <p style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">${photo.croppedFile ? '✅ Cropped' : '⚠️ Not cropped'}</p>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin-top:3px;">${photo.croppedFile?'✅ Cropped':'⚠️ Not cropped'}</p>
           </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
             <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">Copies</span>
-            <input type="number" value="${photo.copies}" min="1" max="54" class="copies-input" data-id="${photo.id}"/>
+            <div class="counter-wrap">
+              <button class="counter-btn btn-minus" data-id="${photo.id}" title="Kam karo">−</button>
+              <span class="counter-val" id="val-${photo.id}">${photo.copies}</span>
+              <button class="counter-btn btn-plus" data-id="${photo.id}" title="Badao">+</button>
+            </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;">
-            <button class="btn-small btn-crop" data-id="${photo.id}">Crop</button>
-            <button class="btn-small btn-remove" data-id="${photo.id}">Remove</button>
-          </div>
-        `;
+            <button class="btn-small btn-crop" data-id="${photo.id}">✂ Crop</button>
+            <button class="btn-small btn-remove" data-id="${photo.id}">✕ Remove</button>
+          </div>`;
         photoList.appendChild(card);
       });
 
-      photoList.querySelectorAll('.copies-input').forEach(inp => {
-        inp.addEventListener('change', e => {
-          const p = photos.find(p => p.id === +e.target.dataset.id);
-          if (p) p.copies = Math.max(1, parseInt(e.target.value) || 1);
-        });
-      });
-      photoList.querySelectorAll('.btn-crop').forEach(btn => {
-        btn.addEventListener('click', e => openCropper(+e.target.dataset.id));
-      });
-      photoList.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', e => {
-          photos = photos.filter(p => p.id !== +e.target.dataset.id);
-          renderPhotoList();
-          if (!photos.length) addMoreWrapper.style.display = 'none';
-        });
-      });
-      addMoreWrapper.style.display = photos.length ? 'block' : 'none';
+      photoList.querySelectorAll('.btn-plus').forEach(btn=>{btn.addEventListener('click',e=>{const id=+e.target.dataset.id,p=photos.find(p=>p.id===id);if(p&&p.copies<54){p.copies++;document.getElementById('val-'+id).textContent=p.copies;}});});
+      photoList.querySelectorAll('.btn-minus').forEach(btn=>{btn.addEventListener('click',e=>{const id=+e.target.dataset.id,p=photos.find(p=>p.id===id);if(p&&p.copies>1){p.copies--;document.getElementById('val-'+id).textContent=p.copies;}});});
+      photoList.querySelectorAll('.btn-crop').forEach(btn=>{btn.addEventListener('click',e=>openCropper(+e.target.dataset.id));});
+      photoList.querySelectorAll('.btn-remove').forEach(btn=>{btn.addEventListener('click',e=>{photos=photos.filter(p=>p.id!==+e.target.dataset.id);renderPhotoList();if(!photos.length)addMoreWrapper.style.display='none';});});
+      addMoreWrapper.style.display=photos.length?'block':'none';
     }
 
-    function addFiles(files) {
-      const valid = ['image/jpeg','image/jpg','image/png','image/webp'];
-      let added = 0;
-      Array.from(files).forEach(f => {
-        if (!valid.includes(f.type)) return;
-        photos.push({ id:nextId++, originalFile:f, croppedFile:null, previewUrl:URL.createObjectURL(f), copies:6 });
-        added++;
+    function addFiles(files){const valid=['image/jpeg','image/jpg','image/png','image/webp'];let added=0;Array.from(files).forEach(f=>{if(!valid.includes(f.type))return;photos.push({id:nextId++,originalFile:f,croppedFile:null,previewUrl:URL.createObjectURL(f),copies:6});added++;});if(!added)showNotif("Please upload JPG, PNG or WEBP files.");renderPhotoList();}
+
+    dropZone.addEventListener('click',()=>imageInput.click());
+    dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('drag-over');});
+    dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop',e=>{e.preventDefault();dropZone.classList.remove('drag-over');addFiles(e.dataTransfer.files);});
+    imageInput.addEventListener('change',()=>{addFiles(imageInput.files);imageInput.value='';});
+    addMoreBtn.addEventListener('click',()=>imageInput.click());
+
+    function openCropper(id){
+      const photo=photos.find(p=>p.id===id);if(!photo)return;
+      pendingCropId=id;cropImg.src=photo.previewUrl;cropModal.style.display='flex';
+      if(activeCropper)activeCropper.destroy();
+      activeCropper=new Cropper(cropImg,{
+        aspectRatio:cropMode==='passport'?(35/45):NaN,
+        viewMode:1,dragMode:'move',autoCropArea:0.9,
+        restore:false,guides:true,center:true,highlight:false,
+        cropBoxMovable:true,cropBoxResizable:true,toggleDragModeOnDblclick:false,
       });
-      if (!added) showNotif("Please upload JPG, PNG or WEBP files.");
-      renderPhotoList();
     }
 
-    dropZone.addEventListener('click', () => imageInput.click());
-    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
-    imageInput.addEventListener('change', () => { addFiles(imageInput.files); imageInput.value=''; });
-    addMoreBtn.addEventListener('click', () => imageInput.click());
+    rotateCrop.addEventListener('click',()=>{if(activeCropper)activeCropper.rotate(90);});
+    resetCrop.addEventListener('click',()=>{if(activeCropper)activeCropper.reset();});
+    flipH.addEventListener('click',()=>{if(activeCropper){const d=activeCropper.getData();activeCropper.scaleX(d.scaleX===-1?1:-1);}});
 
-    function openCropper(id) {
-      const photo = photos.find(p => p.id === id);
-      if (!photo) return;
-      pendingCropId = id;
-      cropImg.src = photo.previewUrl;
-      cropModal.style.display = 'flex';
-      if (activeCropper) activeCropper.destroy();
-      activeCropper = new Cropper(cropImg, { aspectRatio:384/472, viewMode:1, dragMode:'move', autoCropArea:1 });
-    }
-
-    confirmCrop.addEventListener('click', () => {
-      if (!activeCropper || pendingCropId === null) return;
-      activeCropper.getCroppedCanvas({ width:400, height:480 }).toBlob(blob => {
-        const p = photos.find(p => p.id === pendingCropId);
-        if (!p) return;
-        p.croppedFile = new File([blob], 'cropped-'+p.originalFile.name, { type:'image/png' });
-        p.previewUrl = URL.createObjectURL(blob);
-        activeCropper.destroy(); activeCropper = null; pendingCropId = null;
-        cropModal.style.display = 'none';
-        renderPhotoList(); showNotif("Cropped successfully!", false);
-      }, 'image/png');
+    confirmCrop.addEventListener('click',()=>{
+      if(!activeCropper||pendingCropId===null)return;
+      const canvas=activeCropper.getCroppedCanvas({width:800,height:800,imageSmoothingQuality:'high'});
+      canvas.toBlob(blob=>{
+        const p=photos.find(p=>p.id===pendingCropId);if(!p)return;
+        p.croppedFile=new File([blob],'cropped-'+p.originalFile.name,{type:'image/png'});
+        p.previewUrl=URL.createObjectURL(blob);
+        activeCropper.destroy();activeCropper=null;pendingCropId=null;
+        cropModal.style.display='none';renderPhotoList();showNotif("Photo cropped! ✅",false);
+      },'image/png');
     });
 
-    cancelCrop.addEventListener('click', () => {
-      if (activeCropper) { activeCropper.destroy(); activeCropper = null; }
-      pendingCropId = null; cropModal.style.display = 'none';
-    });
+    cancelCrop.addEventListener('click',()=>{if(activeCropper){activeCropper.destroy();activeCropper=null;}pendingCropId=null;cropModal.style.display='none';});
 
-    let advOpen = false;
-    toggleAdv.addEventListener('click', () => {
-      advOpen = !advOpen;
-      advPanel.style.display = advOpen ? 'block' : 'none';
-      toggleAdv.innerHTML = advOpen
-        ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12H4"/></svg> Hide Options`
-        : `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg> Advanced Options`;
-    });
+    let advOpen=false;
+    toggleAdv.addEventListener('click',()=>{advOpen=!advOpen;advPanel.style.display=advOpen?'block':'none';toggleAdv.innerHTML=advOpen?'<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12H4"/></svg> Hide Options':'<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg> Advanced Options';});
 
-    generateBtn.addEventListener('click', () => {
-      if (!photos.length) { showNotif("Please upload at least one photo."); return; }
-      const fd = new FormData();
-      photos.forEach((p, i) => {
-        fd.append(`image_${i}`, p.croppedFile || p.originalFile);
-        fd.append(`copies_${i}`, p.copies);
-      });
-      fd.append('width',   document.getElementById('width').value);
-      fd.append('height',  document.getElementById('height').value);
-      fd.append('spacing', document.getElementById('spacing').value);
-      fd.append('border',  document.getElementById('border').value);
-      fd.append('bg_color', selectedBgColor);
-
-      loading.style.display = 'block';
-      generateBtn.disabled = true;
-      downloadBtn.style.display = 'none';
-      pdfPreview.style.display = 'none';
-
-      fetch('/process', { method:'POST', body:fd })
-        .then(async res => {
-          if (res.status===429) { showNotif("Quota exceeded. Try later."); return null; }
-          if (res.status===410) { showNotif("Face not detected in image."); return null; }
-          if (res.status===500) { showNotif("Server error. Try again."); return null; }
-          if (!res.ok) throw new Error("Failed");
+    generateBtn.addEventListener('click',()=>{
+      if(!photos.length){showNotif("Please upload at least one photo.");return;}
+      const fd=new FormData();
+      photos.forEach((p,i)=>{fd.append('image_'+i,p.croppedFile||p.originalFile);fd.append('copies_'+i,p.copies);});
+      fd.append('width',document.getElementById('width').value);
+      fd.append('height',document.getElementById('height').value);
+      fd.append('spacing',document.getElementById('spacing').value);
+      fd.append('border',document.getElementById('border').value);
+      fd.append('bg_color',selectedBgColor);
+      loading.style.display='block';generateBtn.disabled=true;downloadBtn.style.display='none';pdfPreview.style.display='none';
+      fetch('/process',{method:'POST',body:fd})
+        .then(async res=>{
+          if(res.status===429){showNotif("Quota exceeded. Try later.");return null;}
+          if(res.status===410){showNotif("Face not detected in image.");return null;}
+          if(res.status===500){showNotif("Server error. Try again.");return null;}
+          if(!res.ok)throw new Error("Failed");
           return res.blob();
         })
-        .then(blob => {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          pdfPreview.style.display = 'block'; pdfPreview.src = url;
-          downloadBtn.style.display = 'inline-flex';
-          downloadBtn.onclick = () => { const a=document.createElement('a'); a.href=url; a.download='passport-sheet.pdf'; a.click(); };
-          showNotif("PDF generated successfully! ✨", false);
+        .then(blob=>{
+          if(!blob)return;
+          const url=URL.createObjectURL(blob);
+          pdfPreview.style.display='block';pdfPreview.src=url;
+          downloadBtn.style.display='inline-flex';
+          downloadBtn.onclick=()=>{const a=document.createElement('a');a.href=url;a.download='passport-sheet.pdf';a.click();};
+          showNotif("PDF generated successfully! ✨",false);
         })
-        .catch(() => showNotif("Processing failed. Try again."))
-        .finally(() => { loading.style.display='none'; generateBtn.disabled=false; });
+        .catch(()=>showNotif("Processing failed. Try again."))
+        .finally(()=>{loading.style.display='none';generateBtn.disabled=false;});
     });
 
-    feedbackBtn.addEventListener('click', () => feedbackModal.style.display='flex');
-    closeModal.addEventListener('click', () => feedbackModal.style.display='none');
-    feedbackForm.addEventListener('submit', e => {
+    feedbackBtn.addEventListener('click',()=>feedbackModal.style.display='flex');
+    closeModal.addEventListener('click',()=>feedbackModal.style.display='none');
+    feedbackForm.addEventListener('submit',e=>{
       e.preventDefault();
-      const contact = feedbackForm.contact.value.trim();
-      const message = feedbackForm.message.value.trim();
-      if (!contact || !message) { showNotif("Please fill all fields."); return; }
-      const btn = feedbackForm.querySelector('button[type=submit]');
-      btn.disabled=true; btn.textContent='Sending…';
-      emailjs.send("service_aoewzsq","template_hbw13lt",{ contact, message, user_agent:navigator.userAgent, time:new Date().toLocaleString() })
-        .then(() => { showNotif("Feedback sent! Thank you 🙏", false); feedbackModal.style.display='none'; feedbackForm.reset(); })
-        .catch(() => showNotif("Failed to send. Try again."))
-        .finally(() => { btn.disabled=false; btn.textContent='Send Feedback'; });
+      const contact=feedbackForm.contact.value.trim(),message=feedbackForm.message.value.trim();
+      if(!contact||!message){showNotif("Please fill all fields.");return;}
+      const btn=feedbackForm.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Sending…';
+      emailjs.send("service_aoewzsq","template_hbw13lt",{contact,message,user_agent:navigator.userAgent,time:new Date().toLocaleString()})
+        .then(()=>{showNotif("Feedback sent! 🙏",false);feedbackModal.style.display='none';feedbackForm.reset();})
+        .catch(()=>showNotif("Failed to send. Try again."))
+        .finally(()=>{btn.disabled=false;btn.textContent='Send Feedback';});
     });
   </script>
 </body>

@@ -1,22 +1,15 @@
 from flask import Flask, request, render_template, send_file
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 from io import BytesIO
 from dotenv import load_dotenv
 import requests
-import cloudinary
-import cloudinary.uploader
-import cloudinary.utils
 import os
+
+load_dotenv()  # ✅ .env file load karo
 
 app = Flask(__name__)
 
 REMOVE_BG_API_KEY = os.getenv("REMOVE_BG_API_KEY")
-
-cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
-)
 
 
 @app.route("/")
@@ -63,38 +56,48 @@ def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
     else:
         processed_img = img.convert("RGB")
 
-    # Step 2: Upload to Cloudinary
-    buffer = BytesIO()
-    processed_img.save(buffer, format="PNG")
-    buffer.seek(0)
-    upload_result = cloudinary.uploader.upload(buffer, resource_type="image")
-    image_url = upload_result.get("secure_url")
-    public_id = upload_result.get("public_id")
+    # ── Step 3: FREE Local Enhancement Pipeline (Pillow only) ───────────────
+    # Koi API cost nahi — sab kuch local machine pe hoga
+    from PIL import ImageFilter, ImageEnhance
+    import numpy as np
 
-    if not image_url:
-        raise ValueError("cloudinary_upload_failed")
+    print("DEBUG: Applying FREE local enhancement pipeline...")
 
-    # Step 3: Enhance via Cloudinary AI
-    enhanced_url = cloudinary.utils.cloudinary_url(
-        public_id,
-        transformation=[
-            {"effect": "gen_restore"},
-            {"quality": "auto"},
-            {"fetch_format": "auto"},
-        ],
-    )[0]
+    passport_img = processed_img.copy()
 
-    enhanced_img_data = requests.get(enhanced_url).content
-    img = Image.open(BytesIO(enhanced_img_data))
+    # 3a. 2x Upscale — resolution double karo (LANCZOS = best quality)
+    orig_w, orig_h = passport_img.size
+    passport_img = passport_img.resize(
+        (orig_w * 2, orig_h * 2), Image.LANCZOS
+    )
+    print(f"DEBUG: Upscaled {orig_w}x{orig_h} → {orig_w*2}x{orig_h*2}")
 
-    # Apply chosen background color again after enhancement
-    if img.mode in ("RGBA", "LA"):
-        background = Image.new("RGB", img.size, bg_color)
-        background.paste(img, mask=img.split()[-1])
-        passport_img = background
-    else:
-        passport_img = img.convert("RGB")
+    # 3b. Unsharp Mask — fine details aur edges crisp karo
+    #     radius=2 → kitne pixels tak effect jaaye
+    #     percent=150 → kitna sharp karo (100=normal, 200=max)
+    #     threshold=3 → sirf edges ko sharpen karo, noise nahi
+    passport_img = passport_img.filter(
+        ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3)
+    )
 
+    # 3c. Contrast boost — photo vivid aur clear dikhe
+    passport_img = ImageEnhance.Contrast(passport_img).enhance(1.12)
+
+    # 3d. Sharpness boost — aur crisp karo
+    passport_img = ImageEnhance.Sharpness(passport_img).enhance(1.4)
+
+    # 3e. Brightness — thoda bright karo (passport photo ke liye ideal)
+    passport_img = ImageEnhance.Brightness(passport_img).enhance(1.05)
+
+    # 3f. Color saturation — skin tones natural aur vibrant rahe
+    passport_img = ImageEnhance.Color(passport_img).enhance(1.1)
+
+    # 3g. Second unsharp pass — final crispness
+    passport_img = passport_img.filter(
+        ImageFilter.UnsharpMask(radius=1, percent=80, threshold=2)
+    )
+
+    print("DEBUG: FREE enhancement complete ✅")
     return passport_img
 
 
