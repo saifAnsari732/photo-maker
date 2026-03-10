@@ -24,7 +24,13 @@ def index():
     return render_template("index.html")
 
 
-def process_single_image(input_image_bytes):
+def hex_to_rgb(hex_color):
+    """Convert hex color string to RGB tuple."""
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+
+def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
     """Remove background, enhance, and return a ready-to-paste passport PIL image."""
     # Step 1: Background removal
     response = requests.post(
@@ -49,8 +55,9 @@ def process_single_image(input_image_bytes):
     bg_removed = BytesIO(response.content)
     img = Image.open(bg_removed)
 
+    # Apply chosen background color
     if img.mode in ("RGBA", "LA"):
-        background = Image.new("RGB", img.size, (255, 255, 255))
+        background = Image.new("RGB", img.size, bg_color)
         background.paste(img, mask=img.split()[-1])
         processed_img = background
     else:
@@ -80,8 +87,9 @@ def process_single_image(input_image_bytes):
     enhanced_img_data = requests.get(enhanced_url).content
     img = Image.open(BytesIO(enhanced_img_data))
 
+    # Apply chosen background color again after enhancement
     if img.mode in ("RGBA", "LA"):
-        background = Image.new("RGB", img.size, (255, 255, 255))
+        background = Image.new("RGB", img.size, bg_color)
         background.paste(img, mask=img.split()[-1])
         passport_img = background
     else:
@@ -104,9 +112,12 @@ def process():
     horizontal_gap = 10
     a4_w, a4_h = 2480, 3508
 
+    # Background color
+    bg_hex = request.form.get("bg_color", "#ffffff")
+    bg_color = hex_to_rgb(bg_hex)
+    print(f"DEBUG: Background color = {bg_hex} → RGB {bg_color}")
+
     # Collect images and their copy counts
-    # Supports: image_0, image_1, ... and copies_0, copies_1, ...
-    # Also supports legacy single: image + copies
     images_data = []
 
     # Multi-image mode
@@ -133,7 +144,7 @@ def process():
     for idx, (img_bytes, copies) in enumerate(images_data):
         print(f"DEBUG: Processing image {idx + 1} with {copies} copies")
         try:
-            img = process_single_image(img_bytes)
+            img = process_single_image(img_bytes, bg_color=bg_color)
             img = img.resize((passport_width, passport_height), Image.LANCZOS)
             img = ImageOps.expand(img, border=border, fill="black")
             passport_images.append((img, copies))
@@ -146,7 +157,6 @@ def process():
             else:
                 print(err_str)
                 return {"error": err_str}, 500
-                
 
     paste_w = passport_width + 2 * border
     paste_h = passport_height + 2 * border
@@ -164,15 +174,11 @@ def process():
 
     for passport_img, copies in passport_images:
         for _ in range(copies):
-            # Move to next row if needed
             if x + paste_w > a4_w - margin_x:
                 x = margin_x
                 y += paste_h + spacing
-
-            # Move to next page if needed
             if y + paste_h > a4_h - margin_y:
                 new_page()
-
             current_page.paste(passport_img, (x, y))
             print(f"DEBUG: Placed at x={x}, y={y}")
             x += paste_w + horizontal_gap
@@ -203,8 +209,6 @@ def process():
     )
 
 
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=5000, debug=True)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
