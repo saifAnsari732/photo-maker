@@ -2,14 +2,11 @@ from flask import Flask, request, render_template, send_file
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 from io import BytesIO
 from dotenv import load_dotenv
-import requests
 import os
 
-load_dotenv()  # ✅ .env file load karo
+load_dotenv()
 
 app = Flask(__name__)
-
-REMOVE_BG_API_KEY = os.getenv("REMOVE_BG_API_KEY")
 
 
 @app.route("/")
@@ -24,31 +21,16 @@ def hex_to_rgb(hex_color):
 
 
 def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
-    """Remove background, enhance, and return a ready-to-paste passport PIL image."""
-    # Step 1: Background removal
-    response = requests.post(
-        "https://api.remove.bg/v1.0/removebg",
-        files={"image_file": input_image_bytes},
-        data={"size": "auto"},
-        headers={"X-Api-Key": REMOVE_BG_API_KEY},
-    )
+    """Remove background locally with rembg, enhance, and return PIL image."""
+    from rembg import remove
 
-    if response.status_code != 200:
-        try:
-            error_info = response.json()
-            if error_info.get("errors"):
-                error_code = error_info["errors"][0].get("code", "unknown_error")
-                raise ValueError(f"bg_removal_failed:{error_code}:{response.status_code}")
-        except ValueError:
-            raise
-        except Exception:
-            pass
-        raise ValueError(f"bg_removal_failed:unknown:{response.status_code}")
+    print("DEBUG: Running local background removal with rembg...")
 
-    bg_removed = BytesIO(response.content)
-    img = Image.open(bg_removed)
+    # Step 1: Local background removal (no API, no credits)
+    output_bytes = remove(input_image_bytes)
+    img = Image.open(BytesIO(output_bytes))
 
-    # Apply chosen background color
+    # Step 2: Apply chosen background color
     if img.mode in ("RGBA", "LA"):
         background = Image.new("RGB", img.size, bg_color)
         background.paste(img, mask=img.split()[-1])
@@ -56,11 +38,9 @@ def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
     else:
         processed_img = img.convert("RGB")
 
-    # ── Step 3: FREE Local Enhancement Pipeline (Pillow only) ───────────────
-    # Koi API cost nahi — sab kuch local machine pe hoga
-    from PIL import ImageFilter, ImageEnhance
-    import numpy as np
+    print("DEBUG: Background removed ✅")
 
+    # Step 3: FREE Local Enhancement Pipeline (Pillow only)
     print("DEBUG: Applying FREE local enhancement pipeline...")
 
     passport_img = processed_img.copy()
@@ -73,23 +53,20 @@ def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
     print(f"DEBUG: Upscaled {orig_w}x{orig_h} → {orig_w*2}x{orig_h*2}")
 
     # 3b. Unsharp Mask — fine details aur edges crisp karo
-    #     radius=2 → kitne pixels tak effect jaaye
-    #     percent=150 → kitna sharp karo (100=normal, 200=max)
-    #     threshold=3 → sirf edges ko sharpen karo, noise nahi
     passport_img = passport_img.filter(
         ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3)
     )
 
-    # 3c. Contrast boost — photo vivid aur clear dikhe
+    # 3c. Contrast boost
     passport_img = ImageEnhance.Contrast(passport_img).enhance(1.12)
 
-    # 3d. Sharpness boost — aur crisp karo
+    # 3d. Sharpness boost
     passport_img = ImageEnhance.Sharpness(passport_img).enhance(1.4)
 
-    # 3e. Brightness — thoda bright karo (passport photo ke liye ideal)
+    # 3e. Brightness — thoda bright karo
     passport_img = ImageEnhance.Brightness(passport_img).enhance(1.05)
 
-    # 3f. Color saturation — skin tones natural aur vibrant rahe
+    # 3f. Color saturation — skin tones natural rahe
     passport_img = ImageEnhance.Color(passport_img).enhance(1.1)
 
     # 3g. Second unsharp pass — final crispness
@@ -97,7 +74,7 @@ def process_single_image(input_image_bytes, bg_color=(255, 255, 255)):
         ImageFilter.UnsharpMask(radius=1, percent=80, threshold=2)
     )
 
-    print("DEBUG: FREE enhancement complete ✅")
+    print("DEBUG: Enhancement complete ✅")
     return passport_img
 
 
@@ -151,15 +128,9 @@ def process():
             img = img.resize((passport_width, passport_height), Image.LANCZOS)
             img = ImageOps.expand(img, border=border, fill="black")
             passport_images.append((img, copies))
-        except ValueError as e:
-            err_str = str(e)
-            if "410" in err_str or "face" in err_str.lower():
-                return {"error": "face_detection_failed"}, 410
-            elif "429" in err_str or "quota" in err_str.lower():
-                return {"error": "quota_exceeded"}, 429
-            else:
-                print(err_str)
-                return {"error": err_str}, 500
+        except Exception as e:
+            print(f"ERROR: {e}")
+            return {"error": str(e)}, 500
 
     paste_w = passport_width + 2 * border
     paste_h = passport_height + 2 * border
